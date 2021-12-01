@@ -1,0 +1,6 @@
+# ofc exclude this...
+**/node_modules/
+
+# this folder is used for inputs / notes / whatnot
+# stuff that shouldn't really be included in the git history
+**/exclude/
