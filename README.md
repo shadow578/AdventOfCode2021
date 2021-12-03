@@ -8,7 +8,7 @@ This repo contains solutions to the in- progress Advent of Code 2021.
 
 # shadow578's Advent of Code 2021
 
-![](https://img.shields.io/badge/day%20📅-2-blue)   ![](https://img.shields.io/badge/days%20completed-2-green)  ![](https://img.shields.io/badge/stars%20⭐-4-yellow)
+![](https://img.shields.io/badge/day%20📅-3-blue)   ![](https://img.shields.io/badge/days%20completed-3-green)  ![](https://img.shields.io/badge/stars%20⭐-6-yellow)
 
 This repo contains my solutions to the [Advent of Code 2021](https://adventofcode.com/2021/), written in javascript using [Node.js](https://nodejs.org/).
 
