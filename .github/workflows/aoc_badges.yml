@@ -1,0 +1,28 @@
+# https://github.com/J0B10/aoc-badges-action
+name: AoC-badges
+on:
+  #schedule: 
+  #  - cron: '26 5 1-25 12 *' # from the 1. December till 25. December every day at 5:26am (avoid load at full hours)
+  workflow_dispatch:
+  push:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: joblo2213/aoc-badges-action@v3
+        with:
+          userid: 1626052
+          session: ${{ secrets.AOC_SESSION }}
+          year: 2021
+          leaderboard: 'https://adventofcode.com/2021/leaderboard/private/view/1626052.json'
+          file: 'README.md'
+          dayRegex: '(?<=https:\/\/img\.shields\.io\/badge\/day%20📅-)[0-9]+(?=-blue)'
+          starsRegex: '(?<=https:\/\/img\.shields\.io\/badge\/stars%20⭐-)[0-9]+(?=-yellow)'
+          daysCompletedRegex: '(?<=https:\/\/img\.shields\.io\/badge\/days%20completed-)[0-9]+(?=-green)'
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update badges
+          file_pattern: README.md
