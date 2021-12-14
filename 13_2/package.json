@@ -1,0 +1,14 @@
+{
+  "name": "aoc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "shadow578",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "jimp": "^0.16.1"
+  }
+}
