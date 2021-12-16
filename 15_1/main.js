@@ -1,15 +1,16 @@
 // Day 15, Puzzle 1
 
 /**
- * TODO: this solution currently does not work, as it quickly runs 
- * out of call stack space (due to the recursive function).
- * I really hoped i could get away without using a actual path finding algorithm , but sadly that isn't the case.
- * 
- * Well, i'll have to start from scratch now...
+ * Learning to walk the way of node :P 
+ * Why find your own solution when there's a library that does the work, amirite?
+ * Seriously tho, it's really amazing how many awesome libraries there are for node, and javascript in general. 
+ * Also, documentation generally seems to be quite good too (compared to libraries for C# or Java, at least)
  */
 
 "use strict";
 const fs = require("fs");
+const easystarjs = require("easystarjs");
+const easystar = new easystarjs.js();
 require("colors");
 
 // this is a 2D array of numbers [y][x]
@@ -17,7 +18,7 @@ let map = [];
 
 // read whole file, split on \n, and process all lines sequentially
 // bad for huge files, but the input is pretty small
-fs.readFileSync("./exclude/test_input.txt", "utf-8")
+fs.readFileSync("./exclude/input.txt", "utf-8")
     .split(/\r?\n/)
     .forEach(ln => {
         // split this line into a list of numbers
@@ -36,13 +37,6 @@ fs.readFileSync("./exclude/test_input.txt", "utf-8")
 map.heigth = map.length;
 console.log(`parsed map with size: ${map.width} x ${map.heigth}!`);
 
-// safe get function
-map.getSafe = function (x, y) {
-    if (x < 0 || x >= this.width) return null;
-    if (y < 0 || y >= this.heigth) return null;
-    return this[y][x];
-};
-
 // path risk calc function
 function getPathRisk(path) {
     // add up the risk of all positions entered
@@ -56,80 +50,46 @@ function getPathRisk(path) {
     return risk;
 }
 
-// find all possible paths
-// paths is a list of paths, each beign a list of coordinates it includes, 
-// like this: [{x: 0, y:0}, {x: 0, y: 1}, ...]
-let paths = [];
-function pathFindRecursive(pos, path, allPaths) {
-    // clone path and add current pos
-    path = path.map(x => x);
-    path.push(pos);
+// load map into easystar
+easystar.setGrid(map);
 
-    // if current pos is the end position, we're done
-    if (pos.x >= (map.width - 1) && pos.y >= (map.heigth - 1)) {
-        allPaths.push(path);
+// make all tiles walkable
+let tileTypes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+easystar.setAcceptableTiles(tileTypes);
+
+// set cost of each tile
+tileTypes.forEach(tt => easystar.setTileCost(tt, tt));
+
+// find the path
+easystar.findPath(0, 0, map.width - 1, map.heigth - 1, (path) => {
+    if (!path) {
+        console.error("no path was found!".red);
         return;
     }
 
-    // if risk of this path already is higher than the risk of the lowest risk path, skip this path
-    if (allPaths.length > 0) {
-        let lowestRisk = allPaths.map(p => getPathRisk(p)).reduce((a, b) => a > b ? b : a);
-        let thisPathRisk = getPathRisk(path);
-        if (thisPathRisk > lowestRisk) {
-            return;
+    // stop ticking
+    clearInterval(esTicker);
+
+    // draw map with the path highlighted
+    for (let y = 0; y < map.heigth; y++) {
+        let ln = "";
+        for (let x = 0; x < map.width; x++) {
+            // color the pos if it is in our path
+            if (path.some(p => p.x == x && p.y == y)) {
+                ln += map[y][x].toString().green;
+            } else {
+                ln += map[y][x].toString().gray;
+            }
         }
+
+        console.log(ln);
     }
 
-    // get surrounding positions
-    let validPositions = [
-        { x: pos.x + 1, y: pos.y }, // right
-        { x: pos.x - 1, y: pos.y }, // left
-        { x: pos.x, y: pos.y + 1 }, // down
-        { x: pos.x, y: pos.y - 1 }  // up
-    ];
+    // output result
+    console.log(`\nthe lowest risk path has ${getPathRisk(path).toString().green} risk!`);
+});
 
-    // filter out invalid positions
-    validPositions = validPositions
-        .filter(p => !path.some(e => e.x == p.x && e.y == p.y))     // not already in path
-        .filter(p => map.getSafe(p.x, p.y) != null);                // inside map bounds
-
-    // visit all valid positions
-    validPositions.forEach(p => {
-        pathFindRecursive(p, path, allPaths);
-    });
-}
-console.time("pathFindRecursive");
-pathFindRecursive(
-    { x: 0, y: 0 },
-    [],
-    paths
-);
-console.timeEnd("pathFindRecursive");
-console.log(`found ${paths.length} paths!`);
-
-// find the path with the lowest risk
-let lowestRiskPath = paths.map(path => {
-    // return new object with path + risk for the path
-    return {
-        path: path,
-        totalRisk: getPathRisk(path)
-    };
-}).sort((a, b) => a.totalRisk - b.totalRisk).at(0);
-
-// draw map with lowest risk
-for (let y = 0; y < map.heigth; y++) {
-    let ln = "";
-    for (let x = 0; x < map.width; x++) {
-        // color the pos if it is in our path
-        if (lowestRiskPath.path.some(p => p.x == x && p.y == y)) {
-            ln += map[y][x].toString().green;
-        } else {
-            ln += map[y][x].toString().gray;
-        }
-    }
-
-    console.log(ln);
-}
-
-// output result
-console.log(`\n the lowest risk path has ${lowestRiskPath.totalRisk.toString().green} risk!`);
+// start ticking easystar
+const esTicker = setInterval(() => {
+    easystar.calculate();
+}, 1);

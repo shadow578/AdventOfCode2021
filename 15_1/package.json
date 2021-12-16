@@ -8,6 +8,7 @@
   },
   "author": "shadow578",
   "dependencies": {
-    "colors": "^1.4.0"
+    "colors": "^1.4.0",
+    "easystarjs": "^0.4.4"
   }
 }
